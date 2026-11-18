@@ -85,16 +85,26 @@ def paired_bootstrap(a: Sequence[float], b: Sequence[float], *, n_resamples: int
     return d, float(res.confidence_interval.low), float(res.confidence_interval.high)
 
 
+def _check_nck(n: int, c: int, k: int) -> None:
+    for name, v in (("n", n), ("c", c), ("k", k)):
+        if isinstance(v, bool) or not isinstance(v, int):
+            raise ValueError(f"{name} must be an int, got {v!r}")
+    if n < 1 or not 0 <= c <= n or not 1 <= k <= n:
+        raise ValueError(f"invalid (n={n}, c={c}, k={k}): need n >= 1, 0 <= c <= n, 1 <= k <= n")
+
+
 def pass_at_k(n: int, c: int, k: int) -> float:
     """Probability that AT LEAST ONE of k trials drawn from n (c of them passing) passes.
     Unbiased estimator (Chen et al. 2021): 1 - C(n-c, k) / C(n, k). Raise ValueError if k > n."""
-    # TODO M6
-    raise NotImplementedError
+    _check_nck(n, c, k)
+    if n - c < k:
+        return 1.0
+    return 1.0 - comb(n - c, k) / comb(n, k)
 
 
 def pass_hat_k(n: int, c: int, k: int) -> float:
     """pass^k (tau-bench, Yao et al. 2024): probability that ALL k trials drawn from n pass.
     Unbiased estimator: C(c, k) / C(n, k). Raise ValueError if k > n.
     pass^k <= pass@1 <= pass@k; a reliable agent keeps pass^k close to pass@1."""
-    # TODO M6
-    raise NotImplementedError
+    _check_nck(n, c, k)
+    return comb(c, k) / comb(n, k)          # comb(c, k) == 0 when c < k
