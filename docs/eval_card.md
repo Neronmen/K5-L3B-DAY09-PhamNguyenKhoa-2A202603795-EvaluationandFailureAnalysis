@@ -35,7 +35,7 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10. Mọi s�
   Grader detection (`python -m lab9.mutation --detect`): 100% dòng fail của `seeded_regression` được ít nhất một grader khác giải thích; báo nhầm 0% trên `fixed`.
 - **Judge:** tone_ok κ=0.757, P=0.857, R=0.80 → dùng (theo dõi, không chặn). helpful κ=0.375, P=1.0, R=0.30 → **loại**: bỏ sót 21/30 lỗi thật (chủ yếu sai tiền — judge không thấy ledger). Chi tiết `docs/judge_audit.md`.
 - **Trace case:** `docs/trace_case.md` — `seeded_regression C-014@11`, bước sai đầu tiên = event 5 `proposal` (FM-05 pre_deducted); regression test `tests/test_lab9_trace_case.py`.
-- **Gate owner:** Phạm Nguyễn Khoa (eval owner) — gate exit 1 thì không merge; người mở PR sửa agent, không sửa spec/report.
+- **Gate owner:** Phạm Nguyên Khoa (eval owner) — gate exit 1 thì không merge; người mở PR sửa agent, không sửa spec/report.
 - **Phạm vi pilot:** claim hoàn phí ship trễ / bồi thường hàng hỏng một đơn, kênh chat, số tiền ≤ 300.000đ, có approval hợp lệ; ngoài phạm vi: nhiều đơn, tranh chấp pháp lý, đổi thông tin tài khoản.
 - **Giới hạn / bằng chứng còn thiếu:**
   - MockLLM tất định: cùng seed → cùng trace; A/A noise = 0, không đại diện cho LLM thật (nhiễu > 0).

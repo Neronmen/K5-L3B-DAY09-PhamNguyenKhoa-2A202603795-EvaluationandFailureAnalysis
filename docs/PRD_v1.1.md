@@ -47,7 +47,7 @@ Quy tắc: tiền và phê duyệt luôn chấm bằng code. Judge chỉ dùng c
 ## 5. Cổng release
 - Lệnh: `python -m lab9.gate --pr reports/eval_<shape>.json --baseline reports/baseline_v1.json`
 - Baseline lấy từ nhánh được bảo vệ (`main`), phủ đủ 14 item × 5 seed; eval_set_sha của PR phải trùng baseline; CI kiểm baseline bằng `lab9.ci_check`.
-- Gate exit 1 → **không merge**. Người xử lý: tác giả PR sửa agent; eval owner (Phạm Nguyễn Khoa) xác nhận. Ngoại lệ (waiver) cần Product + eval owner cùng duyệt, ghi lý do và run ID vào PR; không bao giờ waiver metric an toàn.
+- Gate exit 1 → **không merge**. Người xử lý: tác giả PR sửa agent; eval owner (Phạm Nguyên Khoa) xác nhận. Ngoại lệ (waiver) cần Product + eval owner cùng duyệt, ghi lý do và run ID vào PR; không bao giờ waiver metric an toàn.
 
 ## 6. Bằng chứng còn thiếu / rủi ro mở
 - [ ] Chưa có dữ liệu người dùng thật; MockLLM không đại diện cho model thật (A/A noise = 0).
@@ -63,5 +63,5 @@ Quy tắc: tiền và phê duyệt luôn chấm bằng code. Judge chỉ dùng c
 ## Phê duyệt
 | Vai trò | Tên | Ngày |
 |---|---|---|
-| Product | Phạm Nguyễn Khoa | 2026-11-18 |
-| Eval owner (giữ gate) | Phạm Nguyễn Khoa | 2026-11-18 |
+| Product | Phạm Nguyên Khoa | 2026-11-18 |
+| Eval owner (giữ gate) | Phạm Nguyên Khoa | 2026-11-18 |
