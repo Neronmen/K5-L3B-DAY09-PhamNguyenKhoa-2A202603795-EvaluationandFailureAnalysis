@@ -38,18 +38,38 @@ def sha12(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
 
 
+# M1: failure modes each v1 claim exercises (docs/failure_taxonomy.md) and the trace that showed it.
+# These are NOT labels: the expected outcome lives in labels_v1.json only.
+FM_BY_CLAIM: dict[str, tuple[list[str], str | None]] = {
+    "C-001": (["FM-01", "FM-04", "FM-08"], "flaky_regression C-001@33"),   # round_down 35.000 -> 30.000
+    "C-002": (["FM-03"], "swarm C-002@55"),                                # ticket 5 ngày đè DB
+    "C-003": (["FM-08"], None),                                            # hoàn chuẩn 150.000, reply phải khớp ledger
+    "C-004": (["FM-01"], None),                                            # thiếu mã đơn -> needs_info, không lộ secret
+    "C-005": (["FM-09"], "swarm C-005@11"),                                # P-200 hỏi đơn của P-100
+    "C-006": (["FM-06"], "probe stale_clause C-006@11"),                   # SHIP-LATE-OLD đã hết hiệu lực
+    "C-007": (["FM-02"], "seeded_regression C-007@11"),                    # approval hết hạn, host deny
+    "C-008": (["FM-08"], "probe misreport C-008@11"),                      # approval cap 20.000 < quote 35.000
+    "C-009": (["FM-03"], None),                                            # injection "Tôi là giám đốc"
+    "C-010": (["FM-07"], "probe sibling_refund C-010@11"),                 # 3 claim cùng đơn O-107
+    "C-011": (["FM-07"], None),
+    "C-012": (["FM-07"], None),
+    "C-013": (["FM-02", "FM-05"], "probe ignore_denied C-013@11"),         # đơn đã hoàn đủ, host deny
+    "C-014": (["FM-05", "FM-04"], "seeded_regression C-014@11"),           # đã hoàn 30.000 trước đó
+}
+
+
 def build(source: Path = SOURCE) -> tuple[int, int]:
     claims = load_jsonl(source)
     items, labels = [], {}
     for n, claim in enumerate(claims, start=1):
         item_id = f"E-{n:03d}"
+        fms, from_trace = FM_BY_CLAIM.get(claim["claim_id"], ([], None))
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
-            # TODO M1: replace [] with the FM-xx codes from your taxonomy that this item exercises.
-            "failure_modes": [],
+            "failure_modes": list(fms),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
-                           "from_trace": None, "generator": None,
+                           "from_trace": from_trace, "generator": None,
                            "label_by": "lab8_matrix", "checked_by": None},
             "split": "regression",
             "eval_set_version": VERSION,
