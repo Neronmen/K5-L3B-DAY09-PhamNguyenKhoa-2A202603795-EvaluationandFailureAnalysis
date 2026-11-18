@@ -44,3 +44,22 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10. Mọi s�
   - Judge replay trên CSV đã công khai, chưa có held-out; không đo trên người dùng thật.
   - `reply_matches_ledger` chỉ hiểu định dạng "35.000đ"; reply viết "35 nghìn" sẽ bị hiểu là 0đ.
 - **Khi nào tăng eval-set version:** thêm item (ví dụ từ trace case, adversarial pack) hoặc đổi nhãn → v2, chạy lại baseline trên main; trong cùng version chỉ được siết ngưỡng (ratchet).
+
+---
+## v2 (Advanced / Expert) — eval set v2 `d9261a2e9ea7`, spec `metric_spec_v2.yaml` 2.0
+
+- **Baseline v2:** `E-swarm-20261118-d926`, 28 item (14 v1 + 14 adversarial) × 5 seed. pass_rate 0.9786, pass_hat_5 0.8929, refund_amount_correct 0.9786, safety 0/0.
+- **Eval set v2:** `config/fm_map.yaml` map 8 cơ chế tấn công → FM-02..09; mọi FM bị tấn công có ≥ 3 item (`evalset --v2`: 0 problem).
+- **Ngưỡng chọn từ A/A** (`mutation --aa 66,77,88,99,110`): mọi metric Δ = +0.0000 vì MockLLM tất định theo seed. Với LLM thật, A/A cho Δ ≠ 0 (nhiễu sampling) → sàn phải đặt **ngoài** dải nhiễu đó, nếu không gate chặn PR trung thực ngẫu nhiên. `pass_hat_5` sàn 0.80: dưới baseline 0.893, trên flaky 0.571.
+- **Slice nào bắt lỗi nào** (scorecard `mutation`: **3/3, 0 false alarm**):
+
+| Variant | pass_rate TB | pass_hat_5 | Bị chặn bởi | Kỳ vọng |
+|---|---|---|---|---|
+| fixed | 1.0 | 1.0 | — | merge ✓ |
+| honest_refactor | 1.0 | 1.0 | — | merge ✓ |
+| seeded_regression | 0.6429 | 0.6429 | pass_rate, refund, pass_hat_5, reply_matches_ledger, mọi slice | block ✓ |
+| slice_regression | **0.9357 (trên sàn 0.85, CI chạm 0)** | 0.8929 | **chỉ** `slice:money_movement/pass_rate` (0.85, Δ −0.150 CI [−0.300, +0.000]) và `/refund_amount_correct` | block ✓ |
+| flaky_regression | 0.9143 | **0.5714** | `pass_hat_5`, pass_rate, slice money_movement | block ✓ |
+
+- **Chống gian lận (M7):** `integrity_check` chặn NaN/inf, sai số dòng, dòng trùng `(item, seed)`, tập `(item, seed)` / seeds khác baseline, `evaluator_failures` hoặc điểm None, metric báo cáo lệch với rows (sửa tay), slice tag bị đổi, và ratchet với `--base-spec` (nới min/max, bỏ blocking, bỏ metric/slice, bỏ `no_significant_drop`). `lab9.traps`: 4/4 trap công khai bị chặn; tự thử thêm 4 trap (dòng trùng, evaluator_failures trên run xanh, sửa tay metric, gỡ slice tag) — đều bị chặn; baseline so với chính nó vẫn merge.
+- **Giới hạn cỡ mẫu:** bug chỉ xuất hiện ở 1/3 seed (`rare`: seed chia hết cho 3) chỉ bật ở seed 33 trong 11/22/33/44/55 — với 5 seed không phát hiện ổn định được; cần nhiều seed hơn (≥ 15) chứ không hạ ngưỡng. Integrity check không bắt được report giả mạo **nhất quán** (rows và metrics cùng bị sửa khớp nhau) — cần CI tự chạy eval như `ci_check`.
